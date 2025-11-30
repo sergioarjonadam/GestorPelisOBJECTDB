@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.PasswordField?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<BorderPane xmlns="http://javafx.com/javafx/21"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="org.example.retoconjuntoad_di_2.controllers.LoginController">
+
+    <!-- Formulario de login -->
+    <center>
+        <VBox spacing="10" BorderPane.alignment="CENTER">
+            <padding>
+                <Insets top="20" right="40" bottom="20" left="40"/>
+            </padding>
+
+            <!-- Título -->
+            <Label text="Gestor de Películas"
+                   style="-fx-font-size: 24px; -fx-font-weight: bold;"/>
+
+            <Label text="Inicia sesión para continuar"
+                   style="-fx-font-size: 14px;"/>
+
+            <!-- Usuario -->
+            <VBox spacing="5">
+                <Label text="Usuario:"/>
+                <TextField fx:id="txtCorreo"
+                           promptText="Nombre de usuario"/>
+            </VBox>
+
+            <!-- Contraseña -->
+            <VBox spacing="5">
+                <Label text="Contraseña:"/>
+                <PasswordField fx:id="txtContraseña"
+                               promptText="Contraseña"/>
+            </VBox>
+
+            <!-- Mensaje de información / error -->
+            <Label fx:id="info"
+                   textFill="red"
+                   style="-fx-font-size: 12px;"/>
+
+            <!-- Botones -->
+            <HBox spacing="10">
+                <Button text="Entrar"
+                        onAction="#entrar"
+                        prefWidth="100"/>
+                <Button text="Salir"
+                        onAction="#Salir"
+                        prefWidth="100"/>
+            </HBox>
+        </VBox>
+    </center>
+
+</BorderPane>
+

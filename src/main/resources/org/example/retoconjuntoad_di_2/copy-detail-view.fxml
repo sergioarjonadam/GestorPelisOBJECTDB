@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.text.Font?>
+
+<BorderPane xmlns="http://javafx.com/javafx/21"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="org.example.retoconjuntoad_di_2.controllers.CopyDetailController">
+
+    <center>
+        <GridPane hgap="10" vgap="10" BorderPane.alignment="CENTER">
+            <padding>
+                <Insets top="20" right="20" bottom="20" left="20"/>
+            </padding>
+
+            <!-- Título ventana -->
+            <Label text="Detalle de copia" GridPane.columnSpan="2" GridPane.rowIndex="0">
+                <font>
+                    <Font size="20"/>
+                </font>
+            </Label>
+
+            <!-- ID copia (solo lectura) -->
+            <Label text="ID copia:" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+            <Label fx:id="lblId" text="-" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+
+            <!-- Selección de película -->
+            <Label text="Película:" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+            <ComboBox fx:id="comboPelicula"
+                      GridPane.rowIndex="2"
+                      GridPane.columnIndex="1"
+                      prefWidth="250"/>
+
+            <!-- Título (solo lectura) -->
+            <Label text="Título:" GridPane.rowIndex="3" GridPane.columnIndex="0"/>
+            <TextField fx:id="txtTitulo"
+                       GridPane.rowIndex="3"
+                       GridPane.columnIndex="1"
+                       editable="false"/>
+
+            <!-- Género (solo lectura) -->
+            <Label text="Género:" GridPane.rowIndex="4" GridPane.columnIndex="0"/>
+            <TextField fx:id="txtGenero"
+                       GridPane.rowIndex="4"
+                       GridPane.columnIndex="1"
+                       editable="false"/>
+
+            <!-- Año (solo lectura) -->
+            <Label text="Año:" GridPane.rowIndex="5" GridPane.columnIndex="0"/>
+            <TextField fx:id="txtAnio"
+                       GridPane.rowIndex="5"
+                       GridPane.columnIndex="1"
+                       editable="false"/>
+
+            <!-- Estado (editable) -->
+            <Label text="Estado:" GridPane.rowIndex="6" GridPane.columnIndex="0"/>
+            <ComboBox fx:id="comboEstado"
+                      GridPane.rowIndex="6"
+                      GridPane.columnIndex="1"/>
+
+            <!-- Soporte (editable) -->
+            <Label text="Soporte:" GridPane.rowIndex="7" GridPane.columnIndex="0"/>
+            <ComboBox fx:id="comboSoporte"
+                      GridPane.rowIndex="7"
+                      GridPane.columnIndex="1"/>
+
+            <!-- Botones -->
+            <HBox spacing="10" GridPane.rowIndex="8" GridPane.columnIndex="0" GridPane.columnSpan="2">
+                <children>
+                    <Button text="Guardar"
+                            fx:id="btnGuardar"
+                            onAction="#guardar"/>
+                    <Button text="Eliminar"
+                            fx:id="btnEliminar"
+                            onAction="#eliminar"/>
+                    <Button text="Cancelar"
+                            fx:id="btnCancelar"
+                            onAction="#cancelar"/>
+                </children>
+            </HBox>
+        </GridPane>
+    </center>
+
+</BorderPane>
