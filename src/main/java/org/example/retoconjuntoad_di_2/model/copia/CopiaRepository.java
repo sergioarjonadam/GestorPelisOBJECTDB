@@ -138,4 +138,5 @@ public class CopiaRepository implements Repository<Copia> {
             return query.list();
         }
     }
+
 }

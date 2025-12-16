@@ -29,6 +29,14 @@
 
             <!-- Nombre del usuario logueado -->
             <Label fx:id="lblUsuario" text="Usuario:"/>
+
+            <!-- Total de copias del usuario -->
+            <Label fx:id="lblTotalCopias" text="Total de copias: 0" style="-fx-font-weight: bold; -fx-text-fill: #2c3e50;">
+                <font>
+                    <Font size="14.0"/>
+                </font>
+            </Label>
+
             <Button fx:id="btnLogout"
                     text="Cerrar sesión"
                     onAction="#logout"

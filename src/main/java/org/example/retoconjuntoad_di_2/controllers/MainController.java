@@ -30,11 +30,18 @@ public class MainController implements Initializable {
     public Button btnAñadir;
     public Button btnBorrar;
     public Button btnDetalle;
+
+    @FXML
+    private Button btnLogout; // Botón para cerrar sesión.
+
     @FXML
     private Label welcomeText; // Etiqueta para mostrar un mensaje de bienvenida.
 
     @FXML
     private Label lblUsuario; // Etiqueta para mostrar el nombre del usuario logueado.
+
+    @FXML
+    private Label lblTotalCopias; // Etiqueta para mostrar el total de copias del usuario.
 
     @FXML
     private TableView<Copia> tabla; // Tabla para mostrar las copias.
@@ -162,8 +169,8 @@ public class MainController implements Initializable {
         tabla.getItems().clear();
         List<Copia> copias = copiaRepository.findByUser(user);
         tabla.getItems().addAll(copias);
+        lblTotalCopias.setText("Total de copias: " + copias.size());
     }
-
     // ====== Botones ======
 
     /**
