@@ -4,6 +4,7 @@ import javafx.event.ActionEvent;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Label;
+import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import org.example.retoconjuntoad_di_2.model.user.User;
 import org.example.retoconjuntoad_di_2.model.user.UserRepository;
@@ -23,9 +24,6 @@ import java.util.ResourceBundle;
 public class LoginController implements Initializable {
 
     @javafx.fxml.FXML
-    private TextField txtContraseña; // Campo de texto para ingresar la contraseña.
-
-    @javafx.fxml.FXML
     private TextField txtCorreo; // Campo de texto para ingresar el correo electrónico.
 
     @javafx.fxml.FXML
@@ -33,6 +31,8 @@ public class LoginController implements Initializable {
 
     private UserRepository userRepository; // Repositorio para gestionar usuarios.
     private AuthService authService; // Servicio de autenticación de usuarios.
+    @javafx.fxml.FXML
+    private PasswordField txtContraseña;
 
     /**
      * Inicializa el controlador y configura los servicios necesarios.
@@ -43,7 +43,7 @@ public class LoginController implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         // Se crean los servicios necesarios para la autenticación.
-        userRepository = new UserRepository(DataProvider.getSessionFactory());
+        userRepository = new UserRepository(DataProvider.getEntityManagerFactory());
         authService = new AuthService(userRepository);
         info.setText(""); // Limpia el mensaje informativo al iniciar.
     }

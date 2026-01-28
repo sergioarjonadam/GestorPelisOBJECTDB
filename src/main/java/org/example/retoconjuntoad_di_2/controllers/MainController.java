@@ -26,8 +26,11 @@ import java.util.ResourceBundle;
 
 public class MainController implements Initializable {
 
+    @FXML
     public Button btnAñadir;
+    @FXML
     public Button btnBorrar;
+    @FXML
     public Button btnDetalle;
 
     @FXML
@@ -79,7 +82,7 @@ public class MainController implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         simpleSessionService = new SimpleSessionService();
-        copiaRepository = new CopiaRepository(DataProvider.getSessionFactory());
+        copiaRepository = new CopiaRepository(DataProvider.getEntityManagerFactory());
 
         if (!simpleSessionService.isLoggedIn()) {
             JavaFXUtil.showModal(

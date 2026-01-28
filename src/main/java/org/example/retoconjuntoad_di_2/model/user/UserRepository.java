@@ -1,28 +1,31 @@
 package org.example.retoconjuntoad_di_2.model.user;
 
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityManagerFactory;
+import jakarta.persistence.TypedQuery;
 import org.example.retoconjuntoad_di_2.utils.Repository;
-import org.hibernate.Session;
-import org.hibernate.SessionFactory;
-import org.hibernate.query.Query;
 
 import java.util.List;
 import java.util.Optional;
 
 /**
  * Repositorio para gestionar las operaciones CRUD de la entidad User.
- * Utiliza Hibernate para interactuar con la base de datos.
+ * <p>
+ * Ahora utiliza JPA con ObjectDB (EntityManager / EntityManagerFactory) en lugar
+ * de Hibernate + MySQL. De esta forma los datos se almacenan en un fichero .odb
+ * local y no es necesario un servidor de base de datos externo.
  */
 public class UserRepository implements Repository<User> {
 
-    private SessionFactory sessionFactory; // Fábrica de sesiones de Hibernate.
+    private final EntityManagerFactory entityManagerFactory;
 
     /**
-     * Constructor que inicializa el repositorio con una fábrica de sesiones.
+     * Constructor que inicializa el repositorio con una factoría de EntityManager.
      *
-     * @param sessionFactory Fábrica de sesiones de Hibernate.
+     * @param entityManagerFactory Factoría de EntityManager (JPA + ObjectDB).
      */
-    public UserRepository(SessionFactory sessionFactory) {
-        this.sessionFactory = sessionFactory;
+    public UserRepository(EntityManagerFactory entityManagerFactory) {
+        this.entityManagerFactory = entityManagerFactory;
     }
 
     /**
@@ -34,11 +37,18 @@ public class UserRepository implements Repository<User> {
      */
     @Override
     public User save(User entity) {
-        try (Session session = sessionFactory.openSession()) {
-            session.beginTransaction();
-            session.persist(entity);
-            session.getTransaction().commit();
+        EntityManager em = entityManagerFactory.createEntityManager();
+        try {
+            em.getTransaction().begin();
+            if (entity.getId() == null) {
+                em.persist(entity);
+            } else {
+                entity = em.merge(entity);
+            }
+            em.getTransaction().commit();
             return entity;
+        } finally {
+            em.close();
         }
     }
 
@@ -50,11 +60,15 @@ public class UserRepository implements Repository<User> {
      */
     @Override
     public Optional<User> delete(User entity) {
-        try (Session session = sessionFactory.openSession()) {
-            session.beginTransaction();
-            session.remove(entity);
-            session.getTransaction().commit();
+        EntityManager em = entityManagerFactory.createEntityManager();
+        try {
+            em.getTransaction().begin();
+            User managed = em.contains(entity) ? entity : em.merge(entity);
+            em.remove(managed);
+            em.getTransaction().commit();
             return Optional.of(entity);
+        } finally {
+            em.close();
         }
     }
 
@@ -81,8 +95,11 @@ public class UserRepository implements Repository<User> {
      */
     @Override
     public Optional<User> findById(Long id) {
-        try (Session session = sessionFactory.openSession()) {
-            return Optional.ofNullable(session.get(User.class, id.intValue()));
+        EntityManager em = entityManagerFactory.createEntityManager();
+        try {
+            return Optional.ofNullable(em.find(User.class, id.intValue()));
+        } finally {
+            em.close();
         }
     }
 
@@ -93,8 +110,12 @@ public class UserRepository implements Repository<User> {
      */
     @Override
     public List<User> findAll() {
-        try (Session session = sessionFactory.openSession()) {
-            return session.createQuery("from User", User.class).list();
+        EntityManager em = entityManagerFactory.createEntityManager();
+        try {
+            TypedQuery<User> q = em.createQuery("select u from User u", User.class);
+            return q.getResultList();
+        } finally {
+            em.close();
         }
     }
 
@@ -105,10 +126,13 @@ public class UserRepository implements Repository<User> {
      */
     @Override
     public Long count() {
-        try (Session session = sessionFactory.openSession()) {
-            return session.createQuery(
+        EntityManager em = entityManagerFactory.createEntityManager();
+        try {
+            return em.createQuery(
                     "select count(u) from User u", Long.class
             ).getSingleResult();
+        } finally {
+            em.close();
         }
     }
 
@@ -119,13 +143,17 @@ public class UserRepository implements Repository<User> {
      * @return Un Optional que contiene el usuario encontrado, si existe.
      */
     public Optional<User> findByNombreUsuario(String nombreUsuario) {
-        try (Session session = sessionFactory.openSession()) {
-            Query<User> q = session.createQuery(
-                    "from User where nombreUsuario = :nombreUsuario",
+        EntityManager em = entityManagerFactory.createEntityManager();
+        try {
+            TypedQuery<User> q = em.createQuery(
+                    "select u from User u where u.nombreUsuario = :nombreUsuario",
                     User.class
             );
             q.setParameter("nombreUsuario", nombreUsuario);
-            return Optional.ofNullable(q.uniqueResult());
+            List<User> result = q.getResultList();
+            return result.isEmpty() ? Optional.empty() : Optional.of(result.get(0));
+        } finally {
+            em.close();
         }
     }
 }

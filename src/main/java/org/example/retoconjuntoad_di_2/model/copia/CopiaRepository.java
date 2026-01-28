@@ -1,29 +1,31 @@
 package org.example.retoconjuntoad_di_2.model.copia;
 
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityManagerFactory;
+import jakarta.persistence.TypedQuery;
 import org.example.retoconjuntoad_di_2.model.user.User;
 import org.example.retoconjuntoad_di_2.utils.Repository;
-import org.hibernate.Session;
-import org.hibernate.SessionFactory;
-import org.hibernate.query.Query;
 
 import java.util.List;
 import java.util.Optional;
 
 /**
  * Repositorio para gestionar las operaciones CRUD de la entidad Copia.
- * Utiliza Hibernate para interactuar con la base de datos.
+ * <p>
+ * Implementado con JPA sobre ObjectDB (EntityManager / EntityManagerFactory),
+ * sustituyendo al acceso anterior basado en Hibernate.
  */
 public class CopiaRepository implements Repository<Copia> {
 
-    private final SessionFactory sessionFactory; // Fábrica de sesiones de Hibernate.
+    private final EntityManagerFactory entityManagerFactory;
 
     /**
-     * Constructor que inicializa el repositorio con una fábrica de sesiones.
+     * Constructor que inicializa el repositorio con una factoría de EntityManager.
      *
-     * @param sessionFactory Fábrica de sesiones de Hibernate.
+     * @param entityManagerFactory Factoría de EntityManager (JPA + ObjectDB).
      */
-    public CopiaRepository(SessionFactory sessionFactory) {
-        this.sessionFactory = sessionFactory;
+    public CopiaRepository(EntityManagerFactory entityManagerFactory) {
+        this.entityManagerFactory = entityManagerFactory;
     }
 
     /**
@@ -35,21 +37,24 @@ public class CopiaRepository implements Repository<Copia> {
      */
     @Override
     public Copia save(Copia entity) {
-        try (Session session = sessionFactory.openSession()) {
-            session.beginTransaction();
+        EntityManager em = entityManagerFactory.createEntityManager();
+        try {
+            em.getTransaction().begin();
 
             Copia managed;
             if (entity.getId() == null) {
                 // Nueva copia -> INSERT
-                session.persist(entity);
+                em.persist(entity);
                 managed = entity;
             } else {
                 // Copia ya existente -> UPDATE
-                managed = session.merge(entity);
+                managed = em.merge(entity);
             }
 
-            session.getTransaction().commit();
+            em.getTransaction().commit();
             return managed;
+        } finally {
+            em.close();
         }
     }
 
@@ -61,11 +66,15 @@ public class CopiaRepository implements Repository<Copia> {
      */
     @Override
     public Optional<Copia> delete(Copia entity) {
-        try (Session session = sessionFactory.openSession()) {
-            session.beginTransaction();
-            session.remove(entity);
-            session.getTransaction().commit();
+        EntityManager em = entityManagerFactory.createEntityManager();
+        try {
+            em.getTransaction().begin();
+            Copia managed = em.contains(entity) ? entity : em.merge(entity);
+            em.remove(managed);
+            em.getTransaction().commit();
             return Optional.of(entity);
+        } finally {
+            em.close();
         }
     }
 
@@ -90,10 +99,11 @@ public class CopiaRepository implements Repository<Copia> {
      */
     @Override
     public Optional<Copia> findById(Long id) {
-        try (Session session = sessionFactory.openSession()) {
-            return Optional.ofNullable(
-                    session.byId(Copia.class).load(id.intValue())
-            );
+        EntityManager em = entityManagerFactory.createEntityManager();
+        try {
+            return Optional.ofNullable(em.find(Copia.class, id.intValue()));
+        } finally {
+            em.close();
         }
     }
 
@@ -104,8 +114,12 @@ public class CopiaRepository implements Repository<Copia> {
      */
     @Override
     public List<Copia> findAll() {
-        try (Session session = sessionFactory.openSession()) {
-            return session.createQuery("from Copia", Copia.class).list();
+        EntityManager em = entityManagerFactory.createEntityManager();
+        try {
+            TypedQuery<Copia> q = em.createQuery("select c from Copia c", Copia.class);
+            return q.getResultList();
+        } finally {
+            em.close();
         }
     }
 
@@ -116,10 +130,13 @@ public class CopiaRepository implements Repository<Copia> {
      */
     @Override
     public Long count() {
-        try (Session session = sessionFactory.openSession()) {
-            return session.createQuery(
+        EntityManager em = entityManagerFactory.createEntityManager();
+        try {
+            return em.createQuery(
                     "select count(c) from Copia c", Long.class
             ).getSingleResult();
+        } finally {
+            em.close();
         }
     }
 
@@ -130,12 +147,15 @@ public class CopiaRepository implements Repository<Copia> {
      * @return Una lista con las copias del usuario.
      */
     public List<Copia> findByUser(User user) {
-        try (Session session = sessionFactory.openSession()) {
-            Query<Copia> query = session.createQuery(
-                    "from Copia c where c.user = :user", Copia.class
+        EntityManager em = entityManagerFactory.createEntityManager();
+        try {
+            TypedQuery<Copia> query = em.createQuery(
+                    "select c from Copia c where c.user = :user", Copia.class
             );
             query.setParameter("user", user);
-            return query.list();
+            return query.getResultList();
+        } finally {
+            em.close();
         }
     }
 

@@ -1,22 +1,18 @@
 package org.example.retoconjuntoad_di_2.utils;
 
-import org.hibernate.SessionFactory;
-import org.hibernate.cfg.Configuration;
+import jakarta.persistence.EntityManagerFactory;
+import jakarta.persistence.Persistence;
 
 public class DataProvider {
 
-    private static SessionFactory sessionFactory =null;
+    private static final String DB_FILE = "data/data.odb";
 
-    private DataProvider() {}
+    private static EntityManagerFactory entityManagerFactory = null;
 
-    public static SessionFactory getSessionFactory() {
-        if (sessionFactory == null) {
-            var configuration = new Configuration().configure();
-            configuration.setProperty("hibernate.connection.username",System.getenv("DB_USER"));
-            configuration.setProperty("hibernate.connection.password",System.getenv("DB_PASSWORD"));
-            sessionFactory = configuration.buildSessionFactory();
+    public static synchronized EntityManagerFactory getEntityManagerFactory() {
+        if (entityManagerFactory == null) {
+            entityManagerFactory = Persistence.createEntityManagerFactory(DB_FILE);
         }
-        return sessionFactory;
+        return entityManagerFactory;
     }
 }
-

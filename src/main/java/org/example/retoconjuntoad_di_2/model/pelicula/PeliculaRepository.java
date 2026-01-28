@@ -1,28 +1,30 @@
 package org.example.retoconjuntoad_di_2.model.pelicula;
 
-import org.example.retoconjuntoad_di_2.model.pelicula.Pelicula;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityManagerFactory;
+import jakarta.persistence.TypedQuery;
 import org.example.retoconjuntoad_di_2.utils.Repository;
-import org.hibernate.Session;
-import org.hibernate.SessionFactory;
 
 import java.util.List;
 import java.util.Optional;
 
 /**
  * Repositorio para gestionar las operaciones CRUD de la entidad Pelicula.
- * Utiliza Hibernate para interactuar con la base de datos.
+ * <p>
+ * Implementado con JPA sobre ObjectDB (EntityManager / EntityManagerFactory),
+ * sustituyendo al acceso anterior basado en Hibernate.
  */
 public class PeliculaRepository implements Repository<Pelicula> {
 
-    private final SessionFactory sessionFactory; // Fábrica de sesiones de Hibernate.
+    private final EntityManagerFactory entityManagerFactory;
 
     /**
-     * Constructor que inicializa el repositorio con una fábrica de sesiones.
+     * Constructor que inicializa el repositorio con una factoría de EntityManager.
      *
-     * @param sessionFactory Fábrica de sesiones de Hibernate.
+     * @param entityManagerFactory Factoría de EntityManager (JPA + ObjectDB).
      */
-    public PeliculaRepository(SessionFactory sessionFactory) {
-        this.sessionFactory = sessionFactory;
+    public PeliculaRepository(EntityManagerFactory entityManagerFactory) {
+        this.entityManagerFactory = entityManagerFactory;
     }
 
     /**
@@ -34,11 +36,18 @@ public class PeliculaRepository implements Repository<Pelicula> {
      */
     @Override
     public Pelicula save(Pelicula entity) {
-        try (Session session = sessionFactory.openSession()) {
-            session.beginTransaction();
-            session.persist(entity);
-            session.getTransaction().commit();
+        EntityManager em = entityManagerFactory.createEntityManager();
+        try {
+            em.getTransaction().begin();
+            if (entity.getId() == null) {
+                em.persist(entity);
+            } else {
+                entity = em.merge(entity);
+            }
+            em.getTransaction().commit();
             return entity;
+        } finally {
+            em.close();
         }
     }
 
@@ -50,11 +59,15 @@ public class PeliculaRepository implements Repository<Pelicula> {
      */
     @Override
     public Optional<Pelicula> delete(Pelicula entity) {
-        try (Session session = sessionFactory.openSession()) {
-            session.beginTransaction();
-            session.remove(entity);
-            session.getTransaction().commit();
+        EntityManager em = entityManagerFactory.createEntityManager();
+        try {
+            em.getTransaction().begin();
+            Pelicula managed = em.contains(entity) ? entity : em.merge(entity);
+            em.remove(managed);
+            em.getTransaction().commit();
             return Optional.of(entity);
+        } finally {
+            em.close();
         }
     }
 
@@ -79,11 +92,11 @@ public class PeliculaRepository implements Repository<Pelicula> {
      */
     @Override
     public Optional<Pelicula> findById(Long id) {
-        try (Session session = sessionFactory.openSession()) {
-            // Versión moderna para Hibernate 7 (evita el método deprecated get)
-            return Optional.ofNullable(
-                    session.byId(Pelicula.class).load(id.intValue())
-            );
+        EntityManager em = entityManagerFactory.createEntityManager();
+        try {
+            return Optional.ofNullable(em.find(Pelicula.class, id.intValue()));
+        } finally {
+            em.close();
         }
     }
 
@@ -94,8 +107,12 @@ public class PeliculaRepository implements Repository<Pelicula> {
      */
     @Override
     public List<Pelicula> findAll() {
-        try (Session session = sessionFactory.openSession()) {
-            return session.createQuery("from Pelicula", Pelicula.class).list();
+        EntityManager em = entityManagerFactory.createEntityManager();
+        try {
+            TypedQuery<Pelicula> q = em.createQuery("select p from Pelicula p", Pelicula.class);
+            return q.getResultList();
+        } finally {
+            em.close();
         }
     }
 
@@ -106,10 +123,13 @@ public class PeliculaRepository implements Repository<Pelicula> {
      */
     @Override
     public Long count() {
-        try (Session session = sessionFactory.openSession()) {
-            return session.createQuery(
+        EntityManager em = entityManagerFactory.createEntityManager();
+        try {
+            return em.createQuery(
                     "select count(p) from Pelicula p", Long.class
             ).getSingleResult();
+        } finally {
+            em.close();
         }
     }
 }

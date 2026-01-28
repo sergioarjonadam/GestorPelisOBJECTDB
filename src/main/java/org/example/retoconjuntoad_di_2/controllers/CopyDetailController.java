@@ -21,8 +21,11 @@ import java.util.ResourceBundle;
  */
 public class CopyDetailController implements Initializable {
 
+    @FXML
     public Button btnGuardar;
+    @FXML
     public Button btnEliminar;
+    @FXML
     public Button btnCancelar;
 
     @FXML
@@ -58,8 +61,8 @@ public class CopyDetailController implements Initializable {
      */
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        copiaRepository = new CopiaRepository(DataProvider.getSessionFactory());
-        peliculaRepository = new PeliculaRepository(DataProvider.getSessionFactory());
+        copiaRepository = new CopiaRepository(DataProvider.getEntityManagerFactory());
+        peliculaRepository = new PeliculaRepository(DataProvider.getEntityManagerFactory());
 
         // Configurar opciones de estado y soporte.
         comboEstado.getItems().addAll("Nueva", "Buena", "Usada", "Deteriorada");

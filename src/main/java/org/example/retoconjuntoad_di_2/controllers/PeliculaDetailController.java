@@ -39,7 +39,7 @@ public class PeliculaDetailController implements Initializable {
      */
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        peliculaRepository = new PeliculaRepository(DataProvider.getSessionFactory());
+        peliculaRepository = new PeliculaRepository(DataProvider.getEntityManagerFactory());
 
         int anioActual = Year.now().getValue();
         // Establecer texto de ayuda con el rango permitido, por ejemplo "1900 - 2025".
