@@ -10,14 +10,53 @@ import org.example.retoconjuntoad_di_2.utils.DataProvider;
 /**
  * Clase de utilidad para inicializar datos de ejemplo en la base de datos ObjectDB.
  * <p>
- * Inserta un usuario administrador y algunas películas y copias asociadas
- * únicamente si la base de datos está vacía (sin usuarios).
+ * Esta clase proporciona un método estático para poblar la base de datos con
+ * datos iniciales de ejemplo si está vacía. Es útil para desarrollo y pruebas,
+ * permitiendo tener datos de trabajo sin necesidad de crearlos manualmente.
+ * </p>
+ * <p>
+ * <strong>Datos creados:</strong>
+ * <ul>
+ *   <li>Un usuario administrador (usuario: "admin", contraseña: "admin")</li>
+ *   <li>Tres películas de ejemplo con información completa</li>
+ *   <li>Tres copias asociadas al usuario administrador</li>
+ * </ul>
+ * </p>
+ * <p>
+ * <strong>Nota importante:</strong>
+ * Este seeder está diseñado para ejecutarse sobre una base de datos vacía.
+ * Si se ejecuta múltiples veces, generará registros duplicados. Para evitar
+ * problemas con el mapeo de metadatos en consultas JPQL con ObjectDB, no se
+ * realiza una consulta previa para verificar si la base de datos está vacía.
+ * </p>
+ *
+ * @author Sistema de Gestión de Películas
+ * @version 1.0
  */
 public class DatabaseSeeder {
 
     /**
-     * Ejecuta la siembra de datos si no existen usuarios en la base de datos.
-     * Se puede llamar al inicio de la aplicación.
+     * Ejecuta la siembra de datos en la base de datos ObjectDB.
+     * <p>
+     * Este método crea datos de ejemplo si la base de datos está vacía.
+     * Se puede llamar al inicio de la aplicación para asegurar que siempre
+     * haya datos disponibles para trabajar.
+     * </p>
+     * <p>
+     * <strong>Datos creados:</strong>
+     * <ul>
+     *   <li>Usuario administrador: nombre "admin", contraseña "admin"</li>
+     *   <li>Película: "El Señor de los Anillos: La Comunidad del Anillo" (2001)</li>
+     *   <li>Película: "Matrix" (1999)</li>
+     *   <li>Película: "El Padrino" (1972)</li>
+     *   <li>Tres copias asociadas al usuario administrador</li>
+     * </ul>
+     * </p>
+     * <p>
+     * <strong>Manejo de errores:</strong>
+     * Si ocurre algún error durante la inserción, se realiza un rollback
+     * de la transacción y se imprime el error en la consola.
+     * </p>
      */
     public static void seedIfEmpty() {
         EntityManagerFactory emf = DataProvider.getEntityManagerFactory();

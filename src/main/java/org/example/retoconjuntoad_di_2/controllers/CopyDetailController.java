@@ -21,43 +21,99 @@ import java.util.ResourceBundle;
  */
 public class CopyDetailController implements Initializable {
 
+    /**
+     * Botón para guardar los cambios realizados en la copia.
+     */
     @FXML
     public Button btnGuardar;
+    
+    /**
+     * Botón para eliminar la copia actual.
+     */
     @FXML
     public Button btnEliminar;
+    
+    /**
+     * Botón para cancelar la operación y cerrar la ventana.
+     */
     @FXML
     public Button btnCancelar;
 
+    /**
+     * Etiqueta para mostrar el ID de la copia.
+     */
     @FXML
-    private Label lblId; // Etiqueta para mostrar el ID de la copia.
+    private Label lblId;
 
+    /**
+     * ComboBox para seleccionar una película de la lista disponible.
+     */
     @FXML
-    private ComboBox<Pelicula> comboPelicula; // ComboBox para seleccionar una película.
+    private ComboBox<Pelicula> comboPelicula;
 
+    /**
+     * Etiqueta para mostrar el título de la película seleccionada.
+     */
     @FXML
-    private Label lblTitulo; // Etiqueta para mostrar el título de la película.
+    private Label lblTitulo;
 
+    /**
+     * Etiqueta para mostrar el género de la película seleccionada.
+     */
     @FXML
-    private Label lblGenero; // Etiqueta para mostrar el género de la película.
+    private Label lblGenero;
 
+    /**
+     * Etiqueta para mostrar el año de la película seleccionada.
+     */
     @FXML
-    private Label lblAnio; // Etiqueta para mostrar el año de la película.
+    private Label lblAnio;
 
+    /**
+     * ComboBox para seleccionar el estado de la copia.
+     * Opciones disponibles: "Nueva", "Buena", "Usada", "Deteriorada".
+     */
     @FXML
-    private ComboBox<String> comboEstado; // ComboBox para seleccionar el estado de la copia.
+    private ComboBox<String> comboEstado;
 
+    /**
+     * ComboBox para seleccionar el soporte físico de la copia.
+     * Opciones disponibles: "DVD", "Blu-ray", "VHS".
+     */
     @FXML
-    private ComboBox<String> comboSoporte; // ComboBox para seleccionar el soporte de la copia.
+    private ComboBox<String> comboSoporte;
 
-    private Copia copia; // Objeto Copia que se está gestionando.
-    private CopiaRepository copiaRepository; // Repositorio para gestionar las copias.
-    private PeliculaRepository peliculaRepository; // Repositorio para gestionar las películas.
+    /**
+     * Objeto Copia que se está gestionando en esta ventana.
+     * Puede ser una copia nueva (sin ID) o una copia existente (con ID).
+     */
+    private Copia copia;
+    
+    /**
+     * Repositorio para gestionar las operaciones CRUD de copias.
+     */
+    private CopiaRepository copiaRepository;
+    
+    /**
+     * Repositorio para gestionar las operaciones CRUD de películas.
+     */
+    private PeliculaRepository peliculaRepository;
 
     /**
      * Inicializa el controlador y configura los elementos de la interfaz.
+     * <p>
+     * Este método se ejecuta automáticamente cuando se carga la vista FXML.
+     * Realiza las siguientes acciones:
+     * <ul>
+     *   <li>Crea las instancias de los repositorios</li>
+     *   <li>Configura las opciones de estado y soporte en los ComboBox</li>
+     *   <li>Carga todas las películas disponibles en el ComboBox de películas</li>
+     *   <li>Configura un listener para actualizar los datos de la película cuando se selecciona una</li>
+     * </ul>
+     * </p>
      *
-     * @param url URL de inicialización.
-     * @param resourceBundle Recursos de inicialización.
+     * @param url URL de inicialización (no utilizado).
+     * @param resourceBundle Recursos de inicialización (no utilizado).
      */
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
@@ -79,8 +135,14 @@ public class CopyDetailController implements Initializable {
 
     /**
      * Establece la copia que se va a gestionar y rellena los campos con sus datos.
+     * <p>
+     * Este método debe ser llamado después de cargar la vista FXML para establecer
+     * qué copia se está editando. Si se pasa una copia nueva (sin ID), los campos
+     * se dejarán vacíos para que el usuario los complete. Si se pasa una copia
+     * existente (con ID), los campos se rellenarán con los datos actuales.
+     * </p>
      *
-     * @param copia Objeto Copia a gestionar.
+     * @param copia Objeto Copia a gestionar. Puede ser {@code null} para crear una nueva copia.
      */
     public void setCopia(Copia copia) {
         this.copia = copia;
@@ -88,7 +150,13 @@ public class CopyDetailController implements Initializable {
     }
 
     /**
-     * Rellena los campos de la interfaz con los datos de la copia.
+     * Rellena los campos de la interfaz con los datos de la copia actual.
+     * <p>
+     * Este método sincroniza el estado de la interfaz con los datos del objeto Copia.
+     * Si la copia es nueva (sin ID), los campos se dejan en blanco. Si la copia
+     * ya existe, se muestran sus datos actuales y se deshabilita el cambio de película
+     * para mantener la integridad de los datos.
+     * </p>
      */
     private void rellenarCampos() {
         if (copia == null) {
@@ -125,8 +193,13 @@ public class CopyDetailController implements Initializable {
 
     /**
      * Actualiza los campos de información de la película seleccionada.
+     * <p>
+     * Este método se ejecuta automáticamente cuando el usuario selecciona una
+     * película diferente en el ComboBox. Actualiza las etiquetas de título,
+     * género y año con los datos de la película seleccionada.
+     * </p>
      *
-     * @param pelicula Película seleccionada.
+     * @param pelicula Película seleccionada. Puede ser {@code null} si no hay selección.
      */
     private void actualizarDatosPelicula(Pelicula pelicula) {
         if (pelicula == null) {
@@ -143,8 +216,19 @@ public class CopyDetailController implements Initializable {
 
     /**
      * Guarda los cambios realizados en la copia.
+     * <p>
+     * Este método se ejecuta cuando el usuario hace clic en el botón "Guardar".
+     * Realiza las siguientes acciones:
+     * <ol>
+     *   <li>Valida que todos los campos requeridos estén completos (película, estado, soporte)</li>
+     *   <li>Actualiza el objeto Copia con los valores de los campos</li>
+     *   <li>Guarda la copia en la base de datos</li>
+     *   <li>Muestra un mensaje de confirmación</li>
+     *   <li>Cierra la ventana</li>
+     * </ol>
+     * </p>
      *
-     * @param actionEvent Evento de acción.
+     * @param actionEvent Evento de acción generado al presionar el botón de guardar.
      */
     @FXML
     public void guardar(ActionEvent actionEvent) {
@@ -186,9 +270,17 @@ public class CopyDetailController implements Initializable {
     }
 
     /**
-     * Elimina la copia gestionada.
+     * Elimina la copia gestionada de la base de datos.
+     * <p>
+     * Este método se ejecuta cuando el usuario hace clic en el botón "Eliminar".
+     * Solo elimina la copia si ya está guardada en la base de datos (tiene ID).
+     * Si la copia es nueva (sin ID), simplemente cierra la ventana sin guardar.
+     * </p>
+     * <p>
+     * Después de eliminar, muestra un mensaje de confirmación y cierra la ventana.
+     * </p>
      *
-     * @param actionEvent Evento de acción.
+     * @param actionEvent Evento de acción generado al presionar el botón de eliminar.
      */
     @FXML
     public void eliminar(ActionEvent actionEvent) {
@@ -212,9 +304,13 @@ public class CopyDetailController implements Initializable {
     }
 
     /**
-     * Cancela la operación y cierra la ventana.
+     * Cancela la operación y cierra la ventana sin guardar cambios.
+     * <p>
+     * Este método se ejecuta cuando el usuario hace clic en el botón "Cancelar".
+     * Cierra la ventana actual sin realizar ninguna operación de guardado o eliminación.
+     * </p>
      *
-     * @param actionEvent Evento de acción.
+     * @param actionEvent Evento de acción generado al presionar el botón de cancelar.
      */
     @FXML
     public void cancelar(ActionEvent actionEvent) {
@@ -223,6 +319,9 @@ public class CopyDetailController implements Initializable {
 
     /**
      * Cierra la ventana actual.
+     * <p>
+     * Obtiene la referencia a la ventana (Stage) desde el ComboBox de estado y la cierra.
+     * </p>
      */
     private void cerrarVentana() {
         Stage stage = (Stage) comboEstado.getScene().getWindow();

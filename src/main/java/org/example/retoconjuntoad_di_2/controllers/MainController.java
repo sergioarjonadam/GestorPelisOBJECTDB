@@ -24,6 +24,30 @@ import java.net.URL;
 import java.util.List;
 import java.util.ResourceBundle;
 
+/**
+ * Controlador principal de la aplicación.
+ * <p>
+ * Este controlador gestiona la vista principal de la aplicación, que muestra
+ * una tabla con todas las copias de películas del usuario actualmente logueado.
+ * Proporciona funcionalidades para:
+ * <ul>
+ *   <li>Visualizar las copias del usuario en una tabla</li>
+ *   <li>Buscar copias por título de película</li>
+ *   <li>Añadir nuevas copias</li>
+ *   <li>Ver detalles de una copia</li>
+ *   <li>Eliminar copias</li>
+ *   <li>Añadir nuevas películas (solo para administradores)</li>
+ *   <li>Cerrar sesión</li>
+ * </ul>
+ * </p>
+ * <p>
+ * El controlador utiliza un sistema de filtrado en tiempo real para permitir
+ * la búsqueda de copias por título de película mientras el usuario escribe.
+ * </p>
+ *
+ * @author Sistema de Gestión de Películas
+ * @version 1.0
+ */
 public class MainController implements Initializable {
 
     @FXML
@@ -69,16 +93,53 @@ public class MainController implements Initializable {
     @FXML
     private Button btnAddPelicula;
 
+    /**
+     * Campo de texto para realizar búsquedas por título de película.
+     * El filtrado se aplica en tiempo real mientras el usuario escribe.
+     */
     @FXML
-    private TextField txtBuscar; // Campo de búsqueda por título
+    private TextField txtBuscar;
 
+    /**
+     * Servicio de sesión para gestionar el usuario actualmente logueado.
+     */
     private SimpleSessionService simpleSessionService;
+    
+    /**
+     * Repositorio para gestionar las operaciones CRUD de copias.
+     */
     private CopiaRepository copiaRepository;
 
-    // Lista completa y lista filtrada para la tabla
+    /**
+     * Lista observable completa con todas las copias del usuario.
+     * Esta lista se carga desde la base de datos y se mantiene en memoria.
+     */
     private final ObservableList<Copia> copiasUsuario = FXCollections.observableArrayList();
+    
+    /**
+     * Lista filtrada basada en copiasUsuario.
+     * Se actualiza automáticamente cuando cambia el texto de búsqueda.
+     */
     private FilteredList<Copia> copiasFiltradas;
 
+    /**
+     * Inicializa el controlador y configura la interfaz de usuario.
+     * <p>
+     * Este método se ejecuta automáticamente cuando se carga la vista FXML.
+     * Realiza las siguientes acciones:
+     * <ul>
+     *   <li>Verifica que haya un usuario logueado</li>
+     *   <li>Muestra el nombre del usuario actual</li>
+     *   <li>Configura los permisos según el rol del usuario (admin o usuario normal)</li>
+     *   <li>Configura las columnas de la tabla</li>
+     *   <li>Configura el sistema de búsqueda</li>
+     *   <li>Carga las copias del usuario</li>
+     * </ul>
+     * </p>
+     *
+     * @param url URL de inicialización (no utilizado).
+     * @param resourceBundle Recursos de inicialización (no utilizado).
+     */
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         simpleSessionService = new SimpleSessionService();
@@ -114,6 +175,13 @@ public class MainController implements Initializable {
         cargarCopiasUsuario(user);
     }
 
+    /**
+     * Configura las columnas de la tabla de copias.
+     * <p>
+     * Establece los cell value factories para cada columna, extrayendo los valores
+     * de los objetos Copia y sus relaciones (Pelicula, User) para mostrarlos en la tabla.
+     * </p>
+     */
     private void configurarTabla() {
         cId.setCellValueFactory(cellData ->
                 new SimpleStringProperty(
@@ -167,6 +235,14 @@ public class MainController implements Initializable {
 
     /**
      * Configura el filtro de búsqueda en tiempo real por título de película.
+     * <p>
+     * Añade un listener al campo de búsqueda que actualiza automáticamente
+     * el predicado de filtrado de la lista filtrada. El filtro busca copias
+     * cuyo título de película comience con el texto introducido (insensible a mayúsculas).
+     * </p>
+     * <p>
+     * También actualiza el contador de copias visibles cada vez que cambia el filtro.
+     * </p>
      */
     private void configurarBusqueda() {
         if (txtBuscar == null) {
@@ -194,7 +270,14 @@ public class MainController implements Initializable {
     }
 
     /**
-     * Carga las copias del usuario en la lista base y actualiza el total.
+     * Carga las copias del usuario especificado desde la base de datos.
+     * <p>
+     * Este método consulta el repositorio para obtener todas las copias asociadas
+     * al usuario y las añade a la lista observable. Después de cargar, actualiza
+     * el contador de copias visibles (teniendo en cuenta el filtro activo).
+     * </p>
+     *
+     * @param user El usuario cuyas copias se desean cargar.
      */
     private void cargarCopiasUsuario(User user) {
         copiasUsuario.clear();
@@ -205,6 +288,20 @@ public class MainController implements Initializable {
         lblTotalCopias.setText("Total de copias: " + copiasFiltradas.size());
     }
 
+    /**
+     * Maneja el evento de borrado de una copia.
+     * <p>
+     * Este método se ejecuta cuando el usuario hace clic en el botón "Borrar".
+     * Verifica que haya una copia seleccionada en la tabla y muestra un diálogo
+     * de confirmación antes de proceder con la eliminación.
+     * </p>
+     * <p>
+     * Si el usuario confirma, elimina la copia de la base de datos y recarga
+     * la lista de copias del usuario.
+     * </p>
+     *
+     * @param actionEvent Evento de acción generado al presionar el botón de borrar.
+     */
     @FXML
     public void borrar(ActionEvent actionEvent) {
         Copia seleccionada = tabla.getSelectionModel().getSelectedItem();
@@ -231,6 +328,20 @@ public class MainController implements Initializable {
                 });
     }
 
+    /**
+     * Maneja el evento de añadir una nueva copia.
+     * <p>
+     * Este método se ejecuta cuando el usuario hace clic en el botón "Añadir".
+     * Crea una nueva instancia de Copia asociada al usuario actual y abre una
+     * ventana modal para editar los detalles de la copia.
+     * </p>
+     * <p>
+     * Después de cerrar la ventana de detalle, recarga la lista de copias
+     * para reflejar los cambios realizados.
+     * </p>
+     *
+     * @param actionEvent Evento de acción generado al presionar el botón de añadir.
+     */
     @FXML
     public void añadir(ActionEvent actionEvent) {
         var user = simpleSessionService.getActive();
@@ -277,6 +388,20 @@ public class MainController implements Initializable {
         }
     }
 
+    /**
+     * Maneja el evento de visualizar los detalles de una copia seleccionada.
+     * <p>
+     * Este método se ejecuta cuando el usuario hace clic en el botón "Detalle".
+     * Verifica que haya una copia seleccionada en la tabla y abre una ventana
+     * modal para mostrar y editar los detalles de la copia.
+     * </p>
+     * <p>
+     * Después de cerrar la ventana de detalle, recarga la lista de copias
+     * para reflejar los cambios realizados.
+     * </p>
+     *
+     * @param actionEvent Evento de acción generado al presionar el botón de detalle.
+     */
     @FXML
     public void verDetalle(ActionEvent actionEvent) {
         Copia seleccionada = tabla.getSelectionModel().getSelectedItem();
@@ -345,6 +470,16 @@ public class MainController implements Initializable {
         }
     }
 
+    /**
+     * Maneja el evento de cierre de sesión.
+     * <p>
+     * Este método se ejecuta cuando el usuario hace clic en el botón "Cerrar Sesión".
+     * Muestra un mensaje informativo, cierra la sesión del usuario actual y redirige
+     * a la pantalla de login.
+     * </p>
+     *
+     * @param event Evento de acción generado al presionar el botón de cerrar sesión.
+     */
     @FXML
     public void logout(ActionEvent event) {
         JavaFXUtil.showModal(

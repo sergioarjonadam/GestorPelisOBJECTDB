@@ -10,10 +10,26 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * Repositorio para gestionar las operaciones CRUD de la entidad Copia.
+ * Repositorio para gestionar las operaciones CRUD de la entidad {@link Copia}.
  * <p>
+ * Esta clase implementa la interfaz {@link Repository} y proporciona métodos
+ * específicos para gestionar copias de películas en la base de datos utilizando JPA/ObjectDB.
+ * </p>
+ * <p>
+ * <strong>Implementación técnica:</strong>
  * Implementado con JPA sobre ObjectDB (EntityManager / EntityManagerFactory),
  * sustituyendo al acceso anterior basado en Hibernate.
+ * </p>
+ * <p>
+ * Cada operación crea su propio EntityManager y lo cierra después de completarse,
+ * siguiendo el patrón de "una transacción por operación" para garantizar la
+ * consistencia de los datos.
+ * </p>
+ *
+ * @author Sistema de Gestión de Películas
+ * @version 1.0
+ * @see org.example.retoconjuntoad_di_2.model.copia.Copia
+ * @see org.example.retoconjuntoad_di_2.utils.Repository
  */
 public class CopiaRepository implements Repository<Copia> {
 

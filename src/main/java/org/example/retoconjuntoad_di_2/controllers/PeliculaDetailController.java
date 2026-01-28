@@ -22,20 +22,52 @@ import java.util.ResourceBundle;
  */
 public class PeliculaDetailController implements Initializable {
 
-    @FXML private TextField txtTitulo;     // Campo de texto para ingresar el título de la película.
-    @FXML private TextField txtGenero;     // Campo de texto para ingresar el género de la película.
-    @FXML private TextField txtAnio;       // Campo de texto para ingresar el año de la película.
-    @FXML private TextField txtDirector;   // Campo de texto para ingresar el director de la película.
-    @FXML private TextArea txtDescripcion; // Área de texto para ingresar la descripción de la película.
+    /**
+     * Campo de texto para ingresar el título de la película.
+     */
+    @FXML private TextField txtTitulo;
+    
+    /**
+     * Campo de texto para ingresar el género de la película.
+     */
+    @FXML private TextField txtGenero;
+    
+    /**
+     * Campo de texto para ingresar el año de lanzamiento de la película.
+     */
+    @FXML private TextField txtAnio;
+    
+    /**
+     * Campo de texto para ingresar el director de la película.
+     */
+    @FXML private TextField txtDirector;
+    
+    /**
+     * Área de texto para ingresar la descripción de la película.
+     */
+    @FXML private TextArea txtDescripcion;
 
-    private PeliculaRepository peliculaRepository; // Repositorio para gestionar las películas.
-    private static final short MIN_ANIO = 1900;     // Año mínimo permitido.
+    /**
+     * Repositorio para gestionar las operaciones CRUD de películas.
+     */
+    private PeliculaRepository peliculaRepository;
+    
+    /**
+     * Año mínimo permitido para una película.
+     * Se utiliza para validar que el año introducido sea realista.
+     */
+    private static final short MIN_ANIO = 1900;
 
     /**
      * Inicializa el controlador y configura el repositorio de películas.
+     * <p>
+     * Este método se ejecuta automáticamente cuando se carga la vista FXML.
+     * Crea la instancia del repositorio y configura el campo de año con un
+     * texto de ayuda que muestra el rango permitido.
+     * </p>
      *
-     * @param url URL de inicialización.
-     * @param resourceBundle Recursos de inicialización.
+     * @param url URL de inicialización (no utilizado).
+     * @param resourceBundle Recursos de inicialización (no utilizado).
      */
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
@@ -48,7 +80,20 @@ public class PeliculaDetailController implements Initializable {
 
     /**
      * Maneja el evento de guardar una nueva película.
-     * Valida los campos obligatorios y guarda la película en el repositorio.
+     * <p>
+     * Este método se ejecuta cuando el usuario hace clic en el botón "Guardar".
+     * Realiza las siguientes validaciones:
+     * <ul>
+     *   <li>Verifica que los campos obligatorios (título, género, año) no estén vacíos</li>
+     *   <li>Valida que el año sea un número válido</li>
+     *   <li>Valida que el año esté dentro del rango permitido (1900 - año actual)</li>
+     * </ul>
+     * </p>
+     * <p>
+     * Si todas las validaciones pasan, crea una nueva película con los datos
+     * introducidos y la guarda en la base de datos. Después muestra un mensaje
+     * de confirmación y cierra la ventana.
+     * </p>
      *
      * @param actionEvent Evento de acción generado al presionar el botón de guardar.
      */
@@ -121,7 +166,10 @@ public class PeliculaDetailController implements Initializable {
 
     /**
      * Maneja el evento de cancelar la operación.
-     * Cierra la ventana actual sin guardar cambios.
+     * <p>
+     * Este método se ejecuta cuando el usuario hace clic en el botón "Cancelar".
+     * Cierra la ventana actual sin guardar ningún cambio.
+     * </p>
      *
      * @param actionEvent Evento de acción generado al presionar el botón de cancelar.
      */
@@ -132,6 +180,9 @@ public class PeliculaDetailController implements Initializable {
 
     /**
      * Cierra la ventana actual.
+     * <p>
+     * Obtiene la referencia a la ventana (Stage) desde el campo de texto y la cierra.
+     * </p>
      */
     private void cerrarVentana() {
         Stage st = (Stage) txtTitulo.getScene().getWindow();
